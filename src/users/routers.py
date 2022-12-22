@@ -4,5 +4,5 @@ from .viewsets import UserViewset, ProfileViewset
 app_name = "users"
 
 router = routers.DefaultRouter()
-router.register('users',UserViewset)
+router.register('users', UserViewset)
 router.register('profiles', ProfileViewset)
