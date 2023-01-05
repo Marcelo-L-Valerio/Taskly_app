@@ -4,8 +4,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 
-from users import routers as users_api_router
-from teams import routers as teams_api_router
+from users import router as users_api_router
+from teams import router as teams_api_router
+from tasks import router as tasks_api_router
 
 auth_api_urls = [
     path(r'', include('drf_social_oauth2.urls', namespace='drf')),
@@ -17,7 +18,8 @@ if settings.DEBUG:
 api_url_patterns = [
     path(r'auth/', include(auth_api_urls)),
     path(r'accounts/', include(users_api_router.router.urls)),
-    path(r'team/', include(teams_api_router.router.urls))
+    path(r'team/', include(teams_api_router.router.urls)),
+    path(r'task/', include(tasks_api_router.router.urls)),
 ]
 
 urlpatterns = [

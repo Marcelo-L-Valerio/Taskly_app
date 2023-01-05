@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'drf_social_oauth2',
     'users.apps.UsersConfig',
     'teams',
+    'tasks',
 ]
 
 MIDDLEWARE = [
