@@ -1,18 +1,27 @@
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters, authentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
 from .serializers import TeamSerializer
 from .models import Team
 from .permissions import IsTeamManagerOrNone
+
 from django.contrib.auth.models import User
+from django_filters.rest_framework import DjangoFilterBackend
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 
 
 class TeamViewSet(viewsets.ModelViewSet):
 
     queryset = Team.objects.all()
     permission_classes = [IsTeamManagerOrNone, ]
+    authentication_classes = [OAuth2Authentication, authentication.SessionAuthentication]
     serializer_class = TeamSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['members',]
+    search_fields = ['=name', 'description']
+    ordering_fields = ['points', 'completed_tasks_count', 'notcompleted_tasks_count']
 
     @action(detail=True, methods=['post'], name='Join', permission_classes=[])
     def join(self, request, pk=None):
@@ -33,6 +42,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], name='Leave', permission_classes=[])
     def leave(self, request, pk=None):
+
         try:
             team = self.get_object()
             user_profile = request.user.profile
@@ -47,6 +57,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], name='Remove member')
     def remove_member(self, request, pk=None):
+        
         try:
             team = self.get_object()
             user_id = request.data.get('user_id', None)

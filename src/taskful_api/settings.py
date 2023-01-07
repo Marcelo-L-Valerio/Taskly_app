@@ -13,6 +13,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
+from google.oauth2 import service_account
+from dotenv import load_dotenv
+
+load_dotenv() 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,13 +27,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-fh+bkwt8ueo2!w#1(u!sl_eag!7jwsr#_lib9=fyg3bpjyj9wh'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
 
 # Application definition
 
@@ -43,7 +54,8 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'social_django',
     'drf_social_oauth2',
-    'users.apps.UsersConfig',
+    'django_celery_beat',
+    'users',
     'teams',
     'tasks',
 ]
@@ -87,8 +99,12 @@ WSGI_APPLICATION = 'taskful_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.{}'.format(os.getenv('DATABASETYPE')),
+        'NAME': os.getenv('NAME'), 
+        'USER': os.getenv('USER'), 
+        'PASSWORD': os.getenv('PASSWORD'), 
+        'HOST': os.getenv('HOST'), 
+        'PORT': os.getenv('PORT'), 
     }
 }
 
@@ -153,7 +169,24 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
+# Celery Configuration Options
+# Celery Broker - Redis  
+CELERY_BROKER_URL = 'redis://localhost:6379'  
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'  
+CELERY_ACCEPT_CONTENT = ['application/json']  
+CELERY_TASK_SERIALIZER = 'json'  
+CELERY_RESULT_SERIALIZER = 'json'  
+CELERY_TIMEZONE = "UTC"
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-MEDIA_URL = '/media/'
+## ARMAZENAMENTO LOCAL
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+# MEDIA_URL = '/media/'
+
+
+# ARMAZENAMENTO GOOGLE CLOUD
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'prod-bucket-taskly-api'
+GS_FILE_OVERWRITE = True
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file('googlecloud_setup.json')

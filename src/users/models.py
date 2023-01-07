@@ -25,4 +25,4 @@ class Profile(models.Model):
     team = models.ForeignKey('teams.Team', on_delete=models.SET_NULL, null=True, blank=True, related_name='members')
 
     def __str__(self):
-        return f'{self.user.username}\'s Profile'
+        return f'{self.id} - {self.user.username}\'s Profile'
