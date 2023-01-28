@@ -31,7 +31,7 @@ class TaskSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        
+
         user_profile = self.context['request'].user.profile
         task = Task.objects.create(**validated_data)
         task.created_by = user_profile
@@ -59,5 +59,5 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attachment
-        fields = ['url', 'id', 'created_on', 'data', 'task']
+        fields = ['url', 'id', 'created_on', 'image', 'task']
         read_only_fields = ['created_on']

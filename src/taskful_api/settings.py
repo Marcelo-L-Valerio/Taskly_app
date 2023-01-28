@@ -13,11 +13,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
-from google.oauth2 import service_account
-from dotenv import load_dotenv
-
-load_dotenv() 
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,12 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = []
+ALLOWED_HOSTS.extend(
+    filter(
+        None,
+        os.environ.get('ALLOWED_HOSTS', '').split(','),
+    )
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
@@ -97,17 +98,24 @@ WSGI_APPLICATION = 'taskful_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.{}'.format(os.getenv('DATABASETYPE')),
-        'NAME': os.getenv('NAME'), 
-        'USER': os.getenv('USER'), 
-        'PASSWORD': os.getenv('PASSWORD'), 
-        'HOST': os.getenv('HOST'), 
-        'PORT': os.getenv('PORT'), 
-    }
+DB_SQLITE = "sqlite"
+DB_POSTGRESQL = "postgresql"
+
+DATABASES_ALL = {
+    DB_SQLITE: {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    },
+    DB_POSTGRESQL: {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.environ.get('DB_HOST'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
+    },
 }
 
+DATABASES = {"default": DATABASES_ALL[os.environ.get("DJANGO_DB", DB_SQLITE)]}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -144,7 +152,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    
+
    'django.contrib.auth.backends.ModelBackend',
    'drf_social_oauth2.backends.DjangoOAuth2',
 )
@@ -164,29 +172,33 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/static/'
+MEDIA_URL = '/static/media/'
+
+MEDIA_ROOT = '/vol/web/media'
+STATIC_ROOT = '/vol/web/static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 # Celery Configuration Options
-# Celery Broker - Redis  
-CELERY_BROKER_URL = 'redis://localhost:6379'  
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'  
-CELERY_ACCEPT_CONTENT = ['application/json']  
-CELERY_TASK_SERIALIZER = 'json'  
-CELERY_RESULT_SERIALIZER = 'json'  
+# Celery Broker - Redis
+
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = "UTC"
+CELERY_BEAT_SCHEDULE = {
+    "calculate_house_stats": {
+        "task": "teams.tasks.calculate_house_stats",
+        "schedule": 10.0,
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ## ARMAZENAMENTO LOCAL
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 # MEDIA_URL = '/media/'
-
-
-# ARMAZENAMENTO GOOGLE CLOUD
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'prod-bucket-taskly-api'
-GS_FILE_OVERWRITE = True
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file('googlecloud_setup.json')

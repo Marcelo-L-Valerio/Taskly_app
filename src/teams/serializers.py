@@ -1,5 +1,5 @@
 
-from rest_framework import serializers 
+from rest_framework import serializers
 from .models import Team
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -14,3 +14,7 @@ class TeamSerializer(serializers.ModelSerializer):
         'manager', 'description', 'members_count', 'members', 'points',
         'completed_tasks_count', 'notcompleted_tasks_count', 'task_lists']
         read_only_fields = ['points', 'completed_tasks_count', 'notcompleted_tasks_count']
+
+    def create(self, validated_data):
+        print(Team.objects.count())
+        return super().create(validated_data)

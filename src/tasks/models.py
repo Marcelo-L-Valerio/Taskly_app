@@ -11,19 +11,11 @@ TASK_STATUS = [
 COMPLETE = TASK_STATUS[1][0]
 NOT_COMPLETE = TASK_STATUS[0][0]
 
-@deconstructible
-class GenerateAttachmentPathFile(object):
+def attachment_image_file_path(instance, filename):
+    ext = os.path.splitext(filename)[1]
+    filename = f'{uuid.uuid4()}{ext}'
 
-    def __init__(self) -> None:
-        pass
-
-    def __call__(self, instance, filename):
-        ext = filename.split('.')[-1]
-        path = f'media/tasks/{instance.task.id}/attachments'
-        name = f'{instance.id}.{ext}'
-        return os.path.join(path, name)
-
-attachment_file_path = GenerateAttachmentPathFile()
+    return os.path.join('uploads', 'attachments', filename)
 
 class TaskList(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -37,7 +29,7 @@ class TaskList(models.Model):
 
     def __str__(self):
         return f'{self.id} - {self.name}'
-    
+
 class Task(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     completed_on = models.DateTimeField(null=True, blank=True)
@@ -54,9 +46,8 @@ class Task(models.Model):
         return f'{self.id} - {self.name}'
 
 class Attachment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_on = models.DateTimeField(auto_now_add=True)
-    data = models.FileField(upload_to=attachment_file_path)
+    image = models.ImageField(null=True, upload_to=attachment_image_file_path)
     task = models.ForeignKey('tasks.Task', on_delete=models.CASCADE, related_name='attachments')
     description = models.TextField(null=True, blank=True)
 
