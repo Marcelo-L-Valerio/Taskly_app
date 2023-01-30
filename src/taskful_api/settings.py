@@ -98,8 +98,8 @@ WSGI_APPLICATION = 'taskful_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DB_SQLITE = "sqlite"
-DB_POSTGRESQL = "postgresql"
+DB_SQLITE = "sqlite" # Local db
+DB_POSTGRESQL = "postgresql" # Docker db
 
 DATABASES_ALL = {
     DB_SQLITE: {
@@ -186,19 +186,6 @@ STATIC_ROOT = '/vol/web/static'
 
 CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'redis://redis:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = "UTC"
-CELERY_BEAT_SCHEDULE = {
-    "calculate_house_stats": {
-        "task": "teams.tasks.calculate_house_stats",
-        "schedule": 10.0,
-    },
-}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-## ARMAZENAMENTO LOCAL
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-# MEDIA_URL = '/media/'

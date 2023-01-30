@@ -6,9 +6,6 @@ from tasks.models import COMPLETE
 @shared_task
 def calculate_house_stats():
 
-  print(Team.objects.count())
-  # print(Team.objects.all())
-
   for team in Team.objects.all():
     total_tasks = 0
     completed_tasks = 0
@@ -21,4 +18,3 @@ def calculate_house_stats():
     team.completed_tasks_count = completed_tasks
     team.notcompleted_tasks_count = total_tasks - completed_tasks
     team.save()
-    print(team.completed_tasks_count)

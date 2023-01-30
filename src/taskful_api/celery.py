@@ -16,3 +16,10 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
+
+app.conf.beat_schedule = {
+    "calculate_house_stats": {
+        "task": "teams.tasks.calculate_house_stats",
+        "schedule": 10.0,
+    },
+}

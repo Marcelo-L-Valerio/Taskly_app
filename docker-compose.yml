@@ -15,15 +15,12 @@ services:
               python manage.py migrate &&
               python manage.py runserver 0.0.0.0:8000"
     environment:
-      - DJANGO_DB=postgresql
+      - DJANGO_DB=${DJANGO_DB}
       - DB_HOST=db
-      - DB_NAME=devdb
-      - DB_USER=devuser
-      - DB_PASS=changeme
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
       - DEBUG=1
-      - REDIS_HOST=cache
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     depends_on:
       - db
       - redis
@@ -33,9 +30,9 @@ services:
     volumes:
       - dev-db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=devdb
-      - POSTGRES_USER=devuser
-      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
 
   redis:
     image: redis:alpine
@@ -48,14 +45,11 @@ services:
     volumes:
       - ./src:/src
     environment:
+      - DJANGO_DB=${DJANGO_DB}
       - DB_HOST=db
-      - DB_NAME=devdb
-      - DB_USER=devuser
-      - DB_PASS=changeme
-      - DEBUG=1
-      - REDIS_HOST=cache
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
     depends_on:
       - redis
       - app
@@ -64,22 +58,14 @@ services:
   celery-beat:
     build:
       context: .
-    command: celery -A taskful_api beat -l info
+    command: celery -A taskful_api beat -l fatal
     volumes:
       - ./src:/src
-    environment:
-      - DB_HOST=db
-      - DB_NAME=devdb
-      - DB_USER=devuser
-      - DB_PASS=changeme
-      - DEBUG=1
-      - REDIS_HOST=cache
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     depends_on:
       - redis
       - app
       - db
+      - celery
 
 
 volumes:
