@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
+from users.views import home_page
 
 from users import router as users_api_router
 from teams import router as teams_api_router
@@ -24,6 +25,7 @@ api_url_patterns = [
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', home_page, name='home-page'),
     path('api/', include(api_url_patterns))
 ]
 

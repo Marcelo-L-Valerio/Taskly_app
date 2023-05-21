@@ -21,5 +21,6 @@ app.conf.beat_schedule = {
     "calculate_house_stats": {
         "task": "teams.tasks.calculate_house_stats",
         "schedule": 10.0,
+        "options": {"countdown": 60.0, },
     },
 }

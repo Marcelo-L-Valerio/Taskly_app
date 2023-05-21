@@ -26,7 +26,6 @@
 ### O último passo antes de rodar a aplicação, é construir as imagens, volumes, e rodar os containers, para isso, rode os seguintes comandos no terminal da raíz do projeto:
 ```
 docker build .
-docker-compose build
 docker-compose up
 ```
 ### Com isso, o programa estará rodando num servidor local, e executando as background tasks. As vezes, ao utilizar o último comando pela primeira vez, dê erro, apenas cancele no terminal e rode de novo o último

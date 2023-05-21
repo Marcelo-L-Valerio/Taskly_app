@@ -53,7 +53,7 @@ class UserSerializer(serializers.ModelSerializer):
                 else:
                     raise Exception('Old password is incorrect')
                 user.save()
-        
+
         except Exception as err:
             raise serializers.ValidationError({'info': err})
 
